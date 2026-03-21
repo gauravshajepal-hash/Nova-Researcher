@@ -14,7 +14,7 @@
 The Nova Researcher operates on a **Decentralized Event-Driven Graph**:
 
 * **The Principal Investigator (`src/pi_agent/`)**
-  * Powered by context-heavy models (e.g., *Gemini 1.5 Pro*, *Claude 3.5 Sonnet*) via **LiteLLM**.
+  * Powered by context-heavy models via **LiteLLM**.
   * The PI does *not* fetch data directly. Instead, it generates a high-level hypothesis (e.g., applying *Active Matter* physics to *Population Science*) and broadcasts targeted **Unmet Needs** (like `"need": "literature_search"`) to the reactor.
   * Once the Swarm completes its experiments, the `PIWriter` ingests the resulting Directed Acyclic Graph (DAG) of completed Artifacts and synthesizes a hallucination-free research paper.
 
