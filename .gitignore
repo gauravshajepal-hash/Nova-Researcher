@@ -1,0 +1,22 @@
+# Virtual Environments
+.env
+venv/
+env/
+.venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Exclude Upstream Cloned Repositories
+scienceclaw/
+ai_researcher_repo/
+
+# Local DAG Storage & Logs
+.nova_researcher/
+*.jsonl
+*.lock
+*.log
+
+# Windows 
+Thumbs.db
