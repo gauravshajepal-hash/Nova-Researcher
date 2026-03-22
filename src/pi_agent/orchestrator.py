@@ -12,17 +12,20 @@ class PIOrchestrator(BaseAgent):
         self.model = model
 
     def seed_hypothesis(self, domain_a: str, domain_b: str, core_concept: str):
-        """Kick off a cross-disciplinary investigation."""
+        """Kick off a cross-disciplinary investigation using Agentic Tree Search."""
         prompt = f"""
-        Role: Senior Principal Scientist
+        Role: Senior Principal Scientist (AI Scientist v2 Paradigm)
         Goal: Formulate a novel cross-disciplinary hypothesis.
         Domain A: {domain_a}
         Domain B: {domain_b}
         Concept: Apply {core_concept} from {domain_a} to {domain_b}.
         
-        Task: 
-        1. Identify 3 specific sub-topics for literature search.
-        2. Format response as: SEARCH_TOPIC: <topic>
+        Task:
+        1. [Breadth] Generate 5 distinct, diverse hypotheses linking these domains.
+        2. [Depth] Score them and select the highest plausibility hypothesis.
+        3. [Red-Team] Attack your selected hypothesis to find flaws, then refine it.
+        4. [Output] Break the final refined hypothesis into exactly 3 orthogonal sub-topics for a Swarm to research.
+        Format your final specific output lines precisely as: DEEP_RESEARCH_TOPIC: <topic>
         """
         
         try:
@@ -37,22 +40,26 @@ class PIOrchestrator(BaseAgent):
             
             response = _call_llm()
             content = response.choices[0].message.content
+            print(f"[PI] Tree Search Ideation Complete.\n\n{content}\n")
         except litellm.exceptions.AuthenticationError:
-            print("[PI] AuthenticationError caught. Proceeding with Mock synthesis logic for testing.")
-            content = f"SEARCH_TOPIC: {core_concept} in {domain_a}\nSEARCH_TOPIC: {core_concept} in {domain_b}\nSEARCH_TOPIC: Mathematical bridging for {core_concept}"
+            print("[PI] AuthenticationError caught. Proceeding with Mock Agentic Tree Search logic.")
+            content = f"DEEP_RESEARCH_TOPIC: Epigenetic mapping of {core_concept} in {domain_a}\nDEEP_RESEARCH_TOPIC: {core_concept} longitudinal studies in {domain_b}\nDEEP_RESEARCH_TOPIC: Algorithmic convergence of {core_concept}"
         except Exception as e:
             print(f"[PI] LLM error: {e}. Fallback to basic search.")
-            content = f"SEARCH_TOPIC: {core_concept}\nSEARCH_TOPIC: {domain_a} and {domain_b}"
+            content = f"DEEP_RESEARCH_TOPIC: {core_concept}\nDEEP_RESEARCH_TOPIC: {domain_a} and {domain_b}"
             
+        topics_found = 0
         for line in content.split("\n"):
-            if "SEARCH_TOPIC:" in line:
-                topic = line.split("SEARCH_TOPIC:")[1].strip()
-                # Broadcast the need for literature
+            if "DEEP_RESEARCH_TOPIC:" in line:
+                topic = line.split("DEEP_RESEARCH_TOPIC:")[1].strip()
+                # Broadcast the need for deep research
                 self.ask(
-                    need_type="literature_search",
-                    description=f"Search for {topic} at intersection of {domain_a} and {domain_b}",
+                    need_type="deep_research",
+                    description=f"Deep dive investigation for: {topic}",
                     context={"topic": topic, "domains": [domain_a, domain_b]}
                 )
+                topics_found += 1
+        print(f"[System] {topics_found} Deep Research requests broadcasted.")
 
     def run_cycle(self):
         """Observe the DAG and decide next steps."""
