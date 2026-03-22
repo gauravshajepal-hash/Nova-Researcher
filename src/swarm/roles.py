@@ -110,3 +110,17 @@ class PostdocAgent(RalphAgent):
     def execute_task(self, task):
         # Implementation logic for review
         return True
+
+class InternAgent(RalphAgent):
+    def __init__(self, agent_id: str, reactor):
+        super().__init__(agent_id, reactor, "Intern")
+
+    def get_relevant_needs(self):
+        # Interns handle basic formatting or triage
+        return [n for n in self.reactor.get_open_needs() if n.need_type == "data_formatting"]
+
+    def execute_task(self, task):
+        # Lightweight execution
+        print(f"[{self.agent_id}] Intern performing basic task: {task['description']}")
+        return True
+

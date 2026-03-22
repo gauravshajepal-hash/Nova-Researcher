@@ -28,8 +28,31 @@ def start_lab():
     print("="*50)
     print("Commands: /steer <msg>, /question <msg>, /status, /exit\n")
     
-    reactor = ArtifactReactor()
+    reactor = ArtifactReactor() # 1. Initialize PI
     pi = PIOrchestrator(agent_id="Lab_PI", reactor=reactor)
+    
+    # 2. Optimized Multi-Role Swarm Scaling
+    # Priority: Postdoc (3) > PhD Student (3) > Intern (2)
+    max_agents = int(os.getenv("MAX_CONCURRENT_AGENTS", 8))
+    
+    target_inventory = [
+        ("Postdoc", 3),
+        ("PhD_Student", 3),
+        ("Intern", 2)
+    ]
+    
+    active_team = []
+    for role, count in target_inventory:
+        for i in range(count):
+            if len(active_team) >= max_agents:
+                print(f"[Lab Manager] Resource Limit Reached ({max_agents}). Skipping remaining {role}s.")
+                break
+            agent_id = f"{role}_{i+1}"
+            active_team.append({"id": agent_id, "role": role})
+            
+    print(f"[Lab Manager] Successfully scaled lab to {len(active_team)} active staff members.")
+    
+    # ... launch logic continues ...
     
     # Start the background lab processes
     threading.Thread(target=lab_heartbeat, args=(pi,), daemon=True).start()
