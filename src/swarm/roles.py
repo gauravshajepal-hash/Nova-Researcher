@@ -34,7 +34,18 @@ class RalphAgent(BaseAgent):
         self._save_backlog(backlog)
 
     def run_cycle(self):
-        """The Ralph Loop: Read -> Plan -> Execute -> Verify -> Cycle."""
+        """The Ralph Loop with Steering: Steer -> Read -> Plan -> Execute -> Verify."""
+        # 1. Check for specific Steering Directives from the User
+        steering = [n for n in self.reactor.get_open_needs() 
+                    if n.need_type == "steering_directive" and 
+                    (n.context.get("target_id") == self.agent_id or n.context.get("target_id") == "all")]
+        
+        if steering:
+            directive = steering[0]
+            print(f"[{self.agent_id}] !!! HUMAN STEERING INTERRUPT: {directive.description} !!!")
+            self.add_task(f"STEER: {directive.description}", directive.context)
+            self.reactor.resolve_need(directive.id, "STEER_ACKNOWLEDGED")
+
         backlog = self._load_backlog()
         current_task = next((t for t in backlog if t["status"] == "pending"), None)
         

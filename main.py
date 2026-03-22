@@ -12,18 +12,15 @@ def main():
     pi = PIOrchestrator(agent_id="Principal_Investigator", reactor=reactor, model="gemini/gemini-1.5-pro")
     
     print("--- Nova Researcher: Autonomous Cross-Discipline Discovery ---")
-    domain_a = input("Domain A (e.g., Physics): ") or "Physics"
-    domain_b = input("Domain B (e.g., Population Science): ") or "Population Science"
-    concept = input("Core Concept (e.g., Active Matter): ") or "Active Matter"
+    prompt = input("\nResearch Question/Topic: ")
     
-    print(f"\n[PI] Commencing study: {concept} in {domain_b} context...")
-    pi.seed_hypothesis(domain_a, domain_b, concept)
+    if not prompt:
+        prompt = "How can we apply active matter physics to population science models of disease spread?"
+        
+    print(f"\n[PI] Commencing research on: '{prompt}'...")
+    pi.seed_hypothesis(prompt)
     
-    # Simple Heartbeat for Demo
-    pi.run_cycle()
-    
-    print("\n[System] Seeds broadcast to 'unmet_needs.jsonl'.")
-    print("[System] Start swarm workers to fulfill these needs.")
+    print("\n[System] Lab Initialized. To steer agents, use 'start_lab.py'")
 
 if __name__ == "__main__":
     main()

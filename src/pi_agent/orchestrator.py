@@ -18,30 +18,6 @@ class PIOrchestrator(BaseAgent):
         if os.path.exists(self.plan_path):
             with open(self.plan_path, "r") as f:
                 return json.load(f)
-        return []
-
-    def _save_plan(self, plan):
-        with open(self.plan_path, "w") as f:
-            json.dump(plan, f, indent=2)
-
-    def seed_hypothesis(self, domain_a: str, domain_b: str, core_concept: str):
-        """Initial Ralph Planning: Create the research_plan.json."""
-        # AI Scientist v2 Tree Search logic here (simplified for plan creation)
-        print(f"[PI] Designing Research Plan for {core_concept}...")
-        plan = [
-            {"step": 1, "task": f"Literature Review: {core_concept} in {domain_a}", "status": "pending", "type": "deep_research"},
-            {"step": 2, "task": f"Literature Review: {core_concept} in {domain_b}", "status": "pending", "type": "deep_research"},
-            {"step": 3, "task": "Cross-disciplinary Synthesis & Model Proposal", "status": "pending", "type": "data_synthesis"},
-            {"step": 4, "task": "Quality Review of Synthetic Model", "status": "pending", "type": "quality_review"}
-        ]
-        self._save_plan(plan)
-        print(f"[PI] Research Plan generated with {len(plan)} steps.")
-
-    def run_cycle(self):
-        """Standard Ralph Loop + Lab Meeting Logic."""
-        plan = self._load_plan()
-        next_step = next((s for s in plan if s["status"] == "pending"), None)
-        
         if next_step:
             print(f"[PI] Dispatching Step {next_step['step']}: {next_step['task']}")
             self.ask(
