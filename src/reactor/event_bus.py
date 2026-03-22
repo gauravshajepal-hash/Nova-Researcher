@@ -30,16 +30,21 @@ class ArtifactReactor:
             with open(self.index_file, "a", encoding="utf-8") as f:
                 f.write(artifact.model_dump_json() + "\n")
                 
-        # Shadow-copy to EverMemOS for infinite context retrieval
+        # Shadow-copy to EverMemOS with role-based isolation
         try:
             import requests
             requests.post(f"{self.evermem_api}/memories", json={
                 "message_id": artifact.id,
-                "sender": artifact.agent_id,
-                "content": str(artifact.data)
+                "user_id": artifact.agent_id, # Role-based context isolation
+                "content": str(artifact.data),
+                "metadata": {
+                    "topic": artifact.topic,
+                    "skill": artifact.skill_used,
+                    "created_at": str(artifact.created_at)
+                }
             }, timeout=2)
         except Exception:
-            pass  # EverMemOS offline, gracefully continue with standard JSONL
+            pass  # EverMemOS offline
             
         return artifact.id
 
