@@ -57,6 +57,16 @@ def start_lab():
     # Start the background lab processes
     threading.Thread(target=lab_heartbeat, args=(pi,), daemon=True).start()
     
+    # Start the API Dashboard Server
+    from src.reactor.server import app
+    import uvicorn
+    def run_server():
+        uvicorn.run(app, host="0.0.0.0", port=8000, log_level="error")
+    threading.Thread(target=run_server, daemon=True).start()
+    
+    print("[System] Dashboard Live at: http://localhost:8000/ui/index.html")
+    print("[System] Lab Heartbeat Started.")
+    
     while True:
         cmd = input("Lab Console > ").strip()
         

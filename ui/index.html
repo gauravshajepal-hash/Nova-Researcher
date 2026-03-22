@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Lab | Research Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #05070a;
+            --accent-blue: #00f2ff;
+            --accent-purple: #7000ff;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #05070a 100%);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            grid-template-rows: 80px 1fr 300px;
+            height: 100vh;
+            gap: 15px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0 30px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .feed::-webkit-scrollbar { width: 4px; }
+        .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .artifact-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .artifact-card:hover { border-color: var(--accent-blue); transform: translateX(5px); }
+
+        .meta { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+        .agent-pill { background: rgba(0, 242, 255, 0.1); color: var(--accent-blue); padding: 2px 8px; border-radius: 10px; }
+
+        .content { font-size: 14px; line-height: 1.5; color: #cbd5e1; }
+
+        #room { grid-column: 2; grid-row: 2; }
+        #agents { grid-column: 1; grid-row: 2 / 4; }
+        #needs { grid-column: 3; grid-row: 2; }
+        #chat { grid-column: 2 / 4; grid-row: 3; }
+
+        .chat-container { display: flex; flex-direction: column; height: 100%; }
+        .chat-input {
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        button {
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #5a00cc; }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+        .status-dot.busy { background: #eab308; }
+
+        .lab-meeting {
+            background: linear-gradient(135deg, rgba(112, 0, 255, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--accent-purple);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="logo">NOVA-RESEARCHER</div>
+            <div id="cycle-time">Lab Uptime: <span id="uptime">00:00:00</span></div>
+        </header>
+
+        <section class="panel" id="agents">
+            <div class="panel-header"><span>Swarm Hierarchy</span> <div class="status-dot"></div></div>
+            <div class="feed" id="agent-list">
+                <!-- Agents populate here -->
+            </div>
+        </section>
+
+        <section class="panel" id="room">
+            <div class="panel-header">Research Meeting Room</div>
+            <div class="feed" id="artifact-feed">
+                <!-- Artifacts populate here -->
+            </div>
+        </section>
+
+        <section class="panel" id="needs">
+            <div class="panel-header">Active Needs Queue</div>
+            <div class="feed" id="needs-list">
+                <!-- Needs populate here -->
+            </div>
+        </section>
+
+        <section class="panel" id="chat">
+            <div class="panel-header">Human-in-the-Loop Steering</div>
+            <div class="chat-container">
+                <div class="feed" id="log-feed" style="font-family: monospace; font-size: 12px;">
+                    Welcome to Nova Lab Console. Swarm ready for steering...
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="steer-input" placeholder="Type a directive (e.g. /steer prioritize bottleneck analysis)...">
+                    <button onclick="sendSteer()">DISPATCH</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API = "http://localhost:8000";
+
+        async function updateDashboard() {
+            try {
+                // Artifacts
+                const artRes = await fetch(`${API}/artifacts`);
+                const artifacts = await artRes.json();
+                const feed = document.getElementById('artifact-feed');
+                feed.innerHTML = artifacts.map(a => `
+                    <div class="artifact-card ${a.skill_used === 'LabMeeting' ? 'lab-meeting' : ''}">
+                        <div class="meta">
+                            <span class="agent-pill">${a.agent_id}</span> • ${new Date(a.created_at).toLocaleTimeString()}
+                        </div>
+                        <div class="content">
+                            <strong>${a.topic || 'General Research'}</strong><br>
+                            ${a.skill_used === 'DeepResearchSkill' ? (a.data.findings?.substring(0, 150) + '...') : JSON.stringify(a.data).substring(0, 100) + '...'}
+                        </div>
+                    </div>
+                `).join('');
+
+                // Needs
+                const needsRes = await fetch(`${API}/needs`);
+                const needs = await needsRes.json();
+                const needsList = document.getElementById('needs-list');
+                needsList.innerHTML = needs.map(n => `
+                    <div class="artifact-card" style="border-style: dashed;">
+                        <div class="meta"><span class="agent-pill" style="color: #eab308; background: rgba(234, 179, 8, 0.1);">${n.target_role || 'ANY'}</span></div>
+                        <div class="content">${n.description}</div>
+                    </div>
+                `).join('');
+
+                // Agents Mock (Static for now, could be dynamic from API)
+                const agentList = document.getElementById('agent-list');
+                const roles = ['Lab_PI', 'Postdoc_1', 'Postdoc_2', 'PhD_Student_1', 'PhD_Student_2', 'Intern_1'];
+                agentList.innerHTML = roles.map(r => `
+                    <div class="agent-status">
+                        <div class="status-dot ${Math.random() > 0.5 ? 'busy' : ''}"></div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 600;">${r}</div>
+                            <div style="font-size: 11px; color: #64748b;">${r.includes('PI') ? 'Orchestrating' : 'Mining Literature'}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) { console.error("Sync Error", e); }
+        }
+
+        async function sendSteer() {
+            const input = document.getElementById('steer-input');
+            const val = input.value;
+            if (!val) return;
+
+            const log = document.getElementById('log-feed');
+            log.innerHTML += `<div style="color: var(--accent-blue)">[You]: ${val}</div>`;
+
+            await fetch(`${API}/steer`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({directive: val})
+            });
+            
+            input.value = '';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        setInterval(updateDashboard, 3000);
+        updateDashboard();
+
+        // Uptime Timer
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${h}:${m}:${s}`;
+        }, 1000);
+
+    </script>
+</body>
+</html>

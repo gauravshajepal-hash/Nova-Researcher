@@ -43,8 +43,22 @@ class RalphAgent(BaseAgent):
         if steering:
             directive = steering[0]
             print(f"[{self.agent_id}] !!! HUMAN STEERING INTERRUPT: {directive.description} !!!")
-            self.add_task(f"STEER: {directive.description}", directive.context)
-            self.reactor.resolve_need(directive.id, "STEER_ACKNOWLEDGED")
+            print(f"[{self.agent_id}] ⚠️ HITL STEERING RECEIVED: {directive.description}")
+            # Inject into Ralph cycle
+            self.reactor.resolve_need(directive.id, "STEERED")
+            return directive.description, directive.context
+        return None, None
+
+    def run_cycle(self):
+        """The Ralph Loop with Steering: Steer -> Read -> Plan -> Execute -> Verify."""
+        # 0. Check for Steering
+        interrupt_description, interrupt_context = self.check_for_interrupts()
+        if interrupt_description:
+            print(f"[{self.agent_id}] Adopting steered course: {interrupt_description}")
+            self.add_task(f"STEER: {interrupt_description}", interrupt_context)
+            # After handling the steering, we might want to immediately process it
+            # or let the normal task processing pick it up in the next step.
+            # For now, we'll let the normal flow pick it up.
 
         backlog = self._load_backlog()
         current_task = next((t for t in backlog if t["status"] == "pending"), None)

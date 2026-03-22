@@ -1,0 +1,20 @@
+[
+  {
+    "step": 1,
+    "task": "Analyze core premise: Research and implement architectural improvements ...",
+    "status": "completed",
+    "type": "deep_research"
+  },
+  {
+    "step": 2,
+    "task": "Identify 3 specific cross-disciplinary bottlenecks",
+    "status": "completed",
+    "type": "deep_research"
+  },
+  {
+    "step": 3,
+    "task": "Synthesize a draft model",
+    "status": "pending",
+    "type": "data_synthesis"
+  }
+]
