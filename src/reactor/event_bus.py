@@ -21,12 +21,26 @@ class ArtifactReactor:
         # Ensure files exist
         self.index_file.touch(exist_ok=True)
         self.needs_file.touch(exist_ok=True)
+        
+        self.evermem_api = "http://localhost:1995/api/v1"
 
     def publish_artifact(self, artifact: Artifact):
         """Persistent write of an artifact to the global index safely."""
         with self.index_lock:
             with open(self.index_file, "a", encoding="utf-8") as f:
                 f.write(artifact.model_dump_json() + "\n")
+                
+        # Shadow-copy to EverMemOS for infinite context retrieval
+        try:
+            import requests
+            requests.post(f"{self.evermem_api}/memories", json={
+                "message_id": artifact.id,
+                "sender": artifact.agent_id,
+                "content": str(artifact.data)
+            }, timeout=2)
+        except Exception:
+            pass  # EverMemOS offline, gracefully continue with standard JSONL
+            
         return artifact.id
 
     def broadcast_need(self, need: UnmetNeed):
